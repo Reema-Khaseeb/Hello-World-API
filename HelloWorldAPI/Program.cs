@@ -18,7 +18,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HelloWorldApi v1"));
 }
 
-app.MapGet("/hello", async (string? name) =>
+app.MapGet("/hello", (string? name) =>
 {
     string greeting = string.IsNullOrEmpty(name) ? "Hello, World!" : $"Hello, {name}";
     var response = new { greeting };
@@ -26,7 +26,7 @@ app.MapGet("/hello", async (string? name) =>
     return Results.Ok(response);
 });
 
-app.MapGet("/info", async (HttpContext context) =>
+app.MapGet("/info", (HttpContext context) =>
 {
     var clientAddress = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
     var hostName = System.Net.Dns.GetHostName();
