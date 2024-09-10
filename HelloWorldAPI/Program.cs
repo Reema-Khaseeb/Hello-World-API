@@ -1,6 +1,7 @@
 using HelloWorldAPI;
 using Serilog;
 using Microsoft.OpenApi.Models;
+using HelloWorldAPI.Dtos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,11 +29,12 @@ app.MapGet("/hello", (string? name) =>
 {
     try
     {
-    string greeting = string.IsNullOrEmpty(name) ? "Hello, World!" : $"Hello, {name}";
-    var response = new { greeting };
+        var response = new HelloResponse(
+            string.IsNullOrWhiteSpace(name) ? "Hello, World!" : $"Hello, {name}"
+            );
 
         Log.Information($"Processed /hello endpoint with name: {name}");
-    return Results.Ok(response);
+        return Results.Ok(response);
     }
     catch (Exception ex)
     {
@@ -46,20 +48,19 @@ app.MapGet("/info", (HttpContext context) =>
     try
     {
         var clientAddress = context.Connection?.RemoteIpAddress?.ToString() ?? "Unknown";
-    var hostName = System.Net.Dns.GetHostName();
-    var requestTime = DateTime.UtcNow.ToString("o"); // ISO8601 format
-    var headers = context.Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString());
+        var hostName = System.Net.Dns.GetHostName();
+        var requestTime = DateTime.UtcNow.ToString("o"); // ISO8601 format
+        var headers = context.Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString());
 
-    var response = new
-    {
-        time = requestTime,
-        client_address = clientAddress,
-        host_name = hostName,
-        headers
-    };
+        var response = new InfoResponse(
+            Time: requestTime,
+            ClientAddress: clientAddress,
+            HostName: hostName,
+            Headers: headers
+            );
 
         Log.Information($"Processed /info endpoint for client: {clientAddress}");
-    return Results.Ok(response);
+        return Results.Ok(response);
     }
     catch (Exception ex)
     {
