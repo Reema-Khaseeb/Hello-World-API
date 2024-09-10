@@ -20,15 +20,24 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/hello", (string? name) =>
 {
+    try
+    {
     string greeting = string.IsNullOrEmpty(name) ? "Hello, World!" : $"Hello, {name}";
     var response = new { greeting };
 
     return Results.Ok(response);
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new ErrorResponse("An error occurred", ex.Message), statusCode: 500);
+    }
 });
 
 app.MapGet("/info", (HttpContext context) =>
 {
-    var clientAddress = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+    try
+    {
+        var clientAddress = context.Connection?.RemoteIpAddress?.ToString() ?? "Unknown";
     var hostName = System.Net.Dns.GetHostName();
     var requestTime = DateTime.UtcNow.ToString("o"); // ISO8601 format
     var headers = context.Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString());
@@ -42,6 +51,11 @@ app.MapGet("/info", (HttpContext context) =>
     };
 
     return Results.Ok(response);
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new ErrorResponse("An error occurred", ex.Message), statusCode: 500);
+    }
 });
 
 app.Run();
