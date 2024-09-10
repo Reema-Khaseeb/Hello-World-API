@@ -1,6 +1,12 @@
+using HelloWorldAPI;
+using Serilog;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog Logging
+CustomLoggerConfigurationExtensions.ConfigureLogging();
+builder.Host.UseSerilog();
 
 // Add services to the container
 builder.Services.AddEndpointsApiExplorer();
@@ -25,10 +31,12 @@ app.MapGet("/hello", (string? name) =>
     string greeting = string.IsNullOrEmpty(name) ? "Hello, World!" : $"Hello, {name}";
     var response = new { greeting };
 
+        Log.Information($"Processed /hello endpoint with name: {name}");
     return Results.Ok(response);
     }
     catch (Exception ex)
     {
+        Log.Error(ex, "An error occurred while processing /hello");
         return Results.Json(new ErrorResponse("An error occurred", ex.Message), statusCode: 500);
     }
 });
@@ -50,10 +58,12 @@ app.MapGet("/info", (HttpContext context) =>
         headers
     };
 
+        Log.Information($"Processed /info endpoint for client: {clientAddress}");
     return Results.Ok(response);
     }
     catch (Exception ex)
     {
+        Log.Error(ex, "An error occurred while processing /info");
         return Results.Json(new ErrorResponse("An error occurred", ex.Message), statusCode: 500);
     }
 });
